@@ -1027,6 +1027,7 @@ exports.Assign = class Assign extends Base
       return @compilePatternMatch o if @variable.isArray() or @variable.isObject()
       return @compileSplice       o if @variable.isSplice()
       return @compileConditional  o if @context in ['||=', '&&=', '?=']
+      return @compileEventBind    o if @context is ':='
     name = @variable.compile o, LEVEL_LIST
     unless @context
       unless (varBase = @variable.unwrapAll()).isAssignable()
@@ -1153,6 +1154,10 @@ exports.Assign = class Assign extends Base
     [valDef, valRef] = @value.cache o, LEVEL_LIST
     code = "[].splice.apply(#{name}, [#{fromDecl}, #{to}].concat(#{valDef})), #{valRef}"
     if o.level > LEVEL_TOP then "(#{code})" else code
+
+  # Compile binding a function as an event
+  compileEventBind: (o) ->
+    "#{utility 'on'}.call(#{@variable.base.value}, #{@value.compile o})"
 
 #### Code
 
@@ -1976,6 +1981,11 @@ UTILITIES =
   # Shortcuts to speed up the lookup time for native functions.
   hasProp: -> '{}.hasOwnProperty'
   slice  : -> '[].slice'
+
+  # Eventing utility methods
+  on: -> """
+    function(obj, callback) { obj.__event_handler = obj.__event_handler || []; obj.__event_handler.push(callback) }
+  """
 
 # Levels indicate a node's position in the AST. Useful for knowing if
 # parens are necessary or superfluous.
