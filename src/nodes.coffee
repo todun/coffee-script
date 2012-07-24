@@ -1028,6 +1028,7 @@ exports.Assign = class Assign extends Base
       return @compileSplice       o if @variable.isSplice()
       return @compileConditional  o if @context in ['||=', '&&=', '?=']
       return @compileEventBind    o if @context is ':='
+      return @compileEventTrigger o if @context is '<-'
     name = @variable.compile o, LEVEL_LIST
     unless @context
       unless (varBase = @variable.unwrapAll()).isAssignable()
@@ -1158,6 +1159,9 @@ exports.Assign = class Assign extends Base
   # Compile binding a function as an event
   compileEventBind: (o) ->
     "#{utility 'on'}.call(#{@variable.base.value}, #{@value.compile o})"
+
+  compileEventTrigger: (o) ->
+    "#{utility 'trigger'}.call(#{@variable.base.value}, #{@value.compile o})"
 
 #### Code
 
@@ -1984,7 +1988,11 @@ UTILITIES =
 
   # Eventing utility methods
   on: -> """
-    function(obj, callback) { obj.__event_handler = obj.__event_handler || []; obj.__event_handler.push(callback) }
+    function(callback) { this.__event_handler = this.__event_handler || []; this.__event_handler.push(callback) }
+  """
+
+  trigger: -> """
+    function(e) { var callback, _i, _len, _ref; _ref = this.__event_handler; for (_i = 0, _len = _ref.length; _i < _len; _i++) {callback = _ref[_i]; callback(e); } return 0; }
   """
 
 # Levels indicate a node's position in the AST. Useful for knowing if
