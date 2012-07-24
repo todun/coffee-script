@@ -2,5 +2,5 @@ test "events", ->
 	source = {}
 	pass = false
 	source := (e) -> pass = e
-	source <- e
+	source <- true
 	ok pass
