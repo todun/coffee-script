@@ -1,4 +1,6 @@
 test "events", ->
 	source = {}
-	source := -> 
-	ok true
+	pass = false
+	source := (e) -> pass = e
+	source <- e
+	ok pass
