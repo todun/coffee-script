@@ -1993,19 +1993,28 @@ UTILITIES =
   ## Eventing utility methods
   # Bind callback to object
   on: ->
+    utility 'prepareHandler'
     (callback) ->
-      @__event_handler = @__event_handler || []
+      __prepareHandler @
       @__event_handler.push(callback)
 
   # Remove callback from object
   off: ->
+    utility 'prepareHandler'
     (e) ->
+      __prepareHandler @
       @__event_handler[t..t] = [] if (t = @__event_handler.indexOf(e)) > -1
 
   # Trigger callbacks for object.
   trigger: ->
+    utility 'prepareHandler'
     (e) ->
+      __prepareHandler @
       callback(e) for callback in @__event_handler
+
+  prepareHandler: ->
+    (o) ->
+      o.__event_handler = o.__event_handler || []
 
 # Levels indicate a node's position in the AST. Useful for knowing if
 # parens are necessary or superfluous.
