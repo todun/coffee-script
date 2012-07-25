@@ -1028,6 +1028,7 @@ exports.Assign = class Assign extends Base
       return @compileSplice       o if @variable.isSplice()
       return @compileConditional  o if @context in ['||=', '&&=', '?=']
       return @compileEventBind    o if @context is ':='
+      return @compileEventUnbind  o if @context is ':-'
       return @compileEventTrigger o if @context is '<-'
     name = @variable.compile o, LEVEL_LIST
     unless @context
@@ -1159,6 +1160,9 @@ exports.Assign = class Assign extends Base
   # Compile binding a function as an event
   compileEventBind: (o) ->
     "#{utility 'on'}.call(#{@variable.base.value}, #{@value.compile o})"
+
+  compileEventUnbind: (o) ->
+    "#{utility 'off'}.call(#{@variable.base.value}, #{@value.compile o})"
 
   compileEventTrigger: (o) ->
     "#{utility 'trigger'}.call(#{@variable.base.value}, #{@value.compile o})"
@@ -1986,14 +1990,22 @@ UTILITIES =
   hasProp: -> '{}.hasOwnProperty'
   slice  : -> '[].slice'
 
-  # Eventing utility methods
-  on: -> """
-    function(callback) { this.__event_handler = this.__event_handler || []; this.__event_handler.push(callback) }
-  """
+  ## Eventing utility methods
+  # Bind callback to object
+  on: ->
+    (callback) ->
+      @__event_handler = @__event_handler || []
+      @__event_handler.push(callback)
 
-  trigger: -> """
-    function(e) { var callback, _i, _len, _ref; _ref = this.__event_handler; for (_i = 0, _len = _ref.length; _i < _len; _i++) {callback = _ref[_i]; callback(e); } return 0; }
-  """
+  # Remove callback from object
+  off: ->
+    (e) ->
+      @__event_handler[t..t] = [] if (t = @__event_handler.indexOf(e)) > -1
+
+  # Trigger callbacks for object.
+  trigger: ->
+    (e) ->
+      callback(e) for callback in @__event_handler
 
 # Levels indicate a node's position in the AST. Useful for knowing if
 # parens are necessary or superfluous.
