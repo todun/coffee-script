@@ -39,3 +39,10 @@ test "Events as new properties", ->
 	source.event := (e) -> pass = e
 	source.event <- true
 	ok pass
+
+test "Event Advisors", ->
+	pass = false
+	source = {}
+	source.event =:= (e) -> pass = e
+	source.event <- true
+	ok pass
