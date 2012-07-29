@@ -32,3 +32,10 @@ test "Remove with no handlers", ->
 	source = {}
 	source :- (e) -> pass = e
 	ok true
+
+test "Events as new properties", ->
+	pass = false
+	source = {}
+	source.event := (e) -> pass = e
+	source.event <- true
+	ok pass
