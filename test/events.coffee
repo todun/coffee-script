@@ -46,3 +46,11 @@ test "Event Advisors", ->
 	source.event =:= (e) -> pass = e
 	source.event <- true
 	ok pass
+
+test "Advise failure", ->
+	pass = true
+	source = {}
+	source.event := -> pass = false
+	source.event =:= -> throw {}
+	source.event <- {}
+	ok pass
