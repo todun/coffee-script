@@ -1030,6 +1030,7 @@ exports.Assign = class Assign extends Base
       return @compileEventBind    o if @context is ':='
       return @compileEventUnbind  o if @context is ':-'
       return @compileEventTrigger o if @context is '<-'
+      return @compileAdvisorBind  o if @context is '=:='
     name = @variable.compile o, LEVEL_LIST
     unless @context
       unless (varBase = @variable.unwrapAll()).isAssignable()
@@ -1166,6 +1167,9 @@ exports.Assign = class Assign extends Base
 
   compileEventTrigger: (o) ->
     "#{utility 'trigger'}.call(#{@variable.base.value}, #{@value.compile o})"
+
+  compileAdvisorBind: (o) ->
+    "#{utility 'advise'}.call(#{@variable.base.value}, #{@value.compile o})"
 
 #### Code
 
@@ -2005,16 +2009,24 @@ UTILITIES =
       __prepareHandler @
       @__event_handler[t..t] = [] if (t = @__event_handler.indexOf(e)) > -1
 
+  advise: ->
+    utility 'prepareHandler'
+    (advisor) ->
+      __prepareHandler @
+      @__event_advisor.push(advisor)
+
   # Trigger callbacks for object.
   trigger: ->
     utility 'prepareHandler'
     (e) ->
       __prepareHandler @
+      advise(e) for advise in @__event_advisor
       callback(e) for callback in @__event_handler
 
   prepareHandler: ->
     (o) ->
       o.__event_handler = o.__event_handler || []
+      o.__event_advisor = o.__event_advisor || []
 
 # Levels indicate a node's position in the AST. Useful for knowing if
 # parens are necessary or superfluous.
