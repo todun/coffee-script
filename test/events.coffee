@@ -62,3 +62,11 @@ test "Advise updates event", ->
 	source.event =:= -> true
 	source.event <- false
 	ok pass
+
+test "Trigger returns pass/fail", ->
+	source = {}
+	if source.event <- {}
+		ok true
+	source.event =:= -> throw {}
+	if ! source.event <- {}
+		ok true
