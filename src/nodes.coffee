@@ -1027,10 +1027,7 @@ exports.Assign = class Assign extends Base
       return @compilePatternMatch o if @variable.isArray() or @variable.isObject()
       return @compileSplice       o if @variable.isSplice()
       return @compileConditional  o if @context in ['||=', '&&=', '?=']
-      return @compileEventBind    o if @context is ':='
-      return @compileEventUnbind  o if @context is ':-'
-      return @compileEventTrigger o if @context is '<-'
-      return @compileAdvisorBind  o if @context is '=:='
+      return @compileEvent        o if @context in [':=', ':-', '<-', '=:=']
     name = @variable.compile o, LEVEL_LIST
     unless @context
       unless (varBase = @variable.unwrapAll()).isAssignable()
@@ -1159,17 +1156,16 @@ exports.Assign = class Assign extends Base
     if o.level > LEVEL_TOP then "(#{code})" else code
 
   # Compile binding a function as an event
-  compileEventBind: (o) ->
-    "#{utility 'on'}.call(#{@variable.base.value}, #{@value.compile o})"
-
-  compileEventUnbind: (o) ->
-    "#{utility 'off'}.call(#{@variable.base.value}, #{@value.compile o})"
-
-  compileEventTrigger: (o) ->
-    "#{utility 'trigger'}.call(#{@variable.base.value}, #{@value.compile o})"
-
-  compileAdvisorBind: (o) ->
-    "#{utility 'advise'}.call(#{@variable.base.value}, #{@value.compile o})"
+  compileEvent: (o) ->
+    eventOps = {
+      ":=": 'on',
+      ":-": 'off',
+      '<-': 'trigger',
+      '=:=': 'advise'
+    }
+    variable = @variable.compile o
+    op = eventOps[@context]
+    "#{utility op}.call(#{variable} || (#{variable} = {}), #{@value.compile o})"
 
 #### Code
 

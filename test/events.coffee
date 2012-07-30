@@ -76,3 +76,13 @@ test "Exceptions available after failure", ->
 	source.event =:= -> throw {pass: true}
 	source.event <- {}
 	ok source.event.last.exception.pass
+
+test "Trigger multiple events", ->
+	source = {}
+	source.event1 := -> source.event1.pass = true
+	source.event2 := -> source.event2.pass = true
+	source.event1 <- {}
+	source.event2 <- {}
+	ok source.event1.pass
+	ok source.event2.pass
+
