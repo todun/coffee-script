@@ -2022,10 +2022,12 @@ UTILITIES =
       __prepareHandler @
       for advice in @__event_advisor
         try
-          advice(e)
+          _e = advice(e)
+          if _e then e = _e # Advice *may*, not *must*, return an updated event trigger.
         catch ex
-          return
+          return false
       callback(e) for callback in @__event_handler
+      true
 
   prepareHandler: ->
     (o) ->
