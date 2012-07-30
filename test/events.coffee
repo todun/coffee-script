@@ -70,3 +70,9 @@ test "Trigger returns pass/fail", ->
 	source.event =:= -> throw {}
 	if ! source.event <- {}
 		ok true
+
+test "Exceptions available after failure", ->
+	source = {}
+	source.event =:= -> throw {pass: true}
+	source.event <- {}
+	ok source.event.last.exception.pass
