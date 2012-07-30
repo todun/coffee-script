@@ -2016,11 +2016,13 @@ UTILITIES =
     utility 'prepareHandler'
     (e) ->
       __prepareHandler @
+      @last = {event: e, exception: null}
       for advice in @__event_advisor
         try
           _e = advice(e)
-          if _e then e = _e # Advice *may*, not *must*, return an updated event trigger.
+          if _e then @last.event = e = _e # Advice *may*, not *must*, return an updated event trigger.
         catch ex
+          @last.exception = ex
           return false
       callback(e) for callback in @__event_handler
       true
