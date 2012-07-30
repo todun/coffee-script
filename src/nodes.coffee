@@ -2020,7 +2020,11 @@ UTILITIES =
     utility 'prepareHandler'
     (e) ->
       __prepareHandler @
-      advise(e) for advise in @__event_advisor
+      for advice in @__event_advisor
+        try
+          advice(e)
+        catch ex
+          return
       callback(e) for callback in @__event_handler
 
   prepareHandler: ->
