@@ -95,3 +95,11 @@ test "Unadvise", ->
 	source -?> set
 	source <: 2
 	equal pass, 1
+
+test "Bind and trigger on [] accessors", ->
+	pass = false
+	source = {}
+	event = "event"
+	source[event] :> (e) -> pass = e
+	source[event] <: true
+	ok pass
