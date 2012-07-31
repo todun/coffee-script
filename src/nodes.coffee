@@ -1165,7 +1165,7 @@ exports.Assign = class Assign extends Base
       '-?>': 'unadvise'
     variable = @variable.compile o
     op = eventOps[@context]
-    "#{utility op}.call(#{variable} || (#{variable} = {}), #{@value.compile o})"
+    "#{utility op}.call(#{variable} || (#{variable} = {}), #{@value.compile o}, #{@variable.base.value})"
 
 #### Code
 
@@ -2020,17 +2020,17 @@ UTILITIES =
   # Trigger callbacks for object.
   trigger: ->
     utility 'prepareHandler'
-    (e) ->
+    (e, p) ->
       __prepareHandler @
       @last = {event: e, exception: null}
       for advice in @__event_advisor
         try
-          _e = advice(e)
+          _e = advice.call(p, e)
           if _e then @last.event = e = _e # Advice *may*, not *must*, return an updated event trigger.
         catch ex
           @last.exception = ex
           return false
-      callback(e) for callback in @__event_handler
+      callback.call(p, e) for callback in @__event_handler
       true
 
   prepareHandler: ->
