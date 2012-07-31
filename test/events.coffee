@@ -86,3 +86,12 @@ test "Trigger multiple events", ->
 	ok source.event1.pass
 	ok source.event2.pass
 
+test "Unadvise", ->
+	pass = 0
+	source = {}
+	set = (e) -> pass = e
+	source ?> set
+	source <: 1
+	source -?> set
+	source <: 2
+	equal pass, 1
