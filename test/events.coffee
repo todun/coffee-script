@@ -19,7 +19,7 @@ test "Unbind", ->
 	set = (e) -> pass = e
 	source :> set
 	source <: 1
-	source :-> set
+	source -:> set
 	source <: 2
 	equal pass, 1
 
@@ -30,7 +30,7 @@ test "Trigger with no handlers", ->
 
 test "Remove with no handlers", ->
 	source = {}
-	source :-> (e) -> pass = e
+	source -:> (e) -> pass = e
 	ok true
 
 test "Events as new properties", ->
@@ -43,7 +43,7 @@ test "Events as new properties", ->
 test "Event Advisors", ->
 	pass = false
 	source = {}
-	source.event *> (e) -> pass = e
+	source.event ?> (e) -> pass = e
 	source.event <: true
 	ok pass
 
@@ -51,7 +51,7 @@ test "Advise failure", ->
 	pass = true
 	source = {}
 	source.event :> -> pass = false
-	source.event *> -> throw {}
+	source.event ?> -> throw {}
 	source.event <: {} 
 	ok pass
 
@@ -59,7 +59,7 @@ test "Advise updates event", ->
 	pass = false
 	source = {}
 	source.event :> (e) -> pass = e
-	source.event *> -> true
+	source.event ?> -> true
 	source.event <: false
 	ok pass
 
@@ -67,13 +67,13 @@ test "Trigger returns pass/fail", ->
 	source = {}
 	if source.event <: {}
 		ok true
-	source.event *> -> throw {}
+	source.event ?> -> throw {}
 	if ! source.event <: {}
 		ok true
 
 test "Exceptions available after failure", ->
 	source = {}
-	source.event *> -> throw {pass: true}
+	source.event ?> -> throw {pass: true}
 	source.event <: {}
 	ok source.event.last.exception.pass
 

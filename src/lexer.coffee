@@ -614,7 +614,7 @@ OPERATOR   = /// ^ (
    | ([&|<>])\2=?      # logic / shift
    | \?\.              # soak access
    | \.{2,3}           # range or splat
-   | <?[*:](-?>)?       # Event operators
+   | <: | -?[:\?]>      # Event operators
 ) ///
 
 WHITESPACE = /^[^\n\S]+/
@@ -661,7 +661,7 @@ TRAILING_SPACES = /\s+$/
 
 # Compound assignment tokens.
 COMPOUND_ASSIGN = [
-  '-=', '+=', '/=', '*=', '%=', '||=', '&&=', '?=', '<<=', '>>=', '>>>=', '&=', '^=', '|=', ':>', ':-', '<:', '*>', '*-'
+  '-=', '+=', '/=', '*=', '%=', '||=', '&&=', '?=', '<<=', '>>=', '>>>=', '&=', '^=', '|=', ':>', '-:>', '<:', '?>', '-?>'
 ]
 
 # Unary tokens.

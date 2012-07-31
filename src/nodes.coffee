@@ -1027,7 +1027,7 @@ exports.Assign = class Assign extends Base
       return @compilePatternMatch o if @variable.isArray() or @variable.isObject()
       return @compileSplice       o if @variable.isSplice()
       return @compileConditional  o if @context in ['||=', '&&=', '?=']
-      return @compileEvent        o if @context in [':>', ':->', '<:', '*>', '*->']
+      return @compileEvent        o if @context in [':>', '-:>', '<:', '?>', '-?>']
     name = @variable.compile o, LEVEL_LIST
     unless @context
       unless (varBase = @variable.unwrapAll()).isAssignable()
@@ -1157,13 +1157,12 @@ exports.Assign = class Assign extends Base
 
   # Compile binding a function as an event
   compileEvent: (o) ->
-    eventOps = {
+    eventOps =
       ":>": 'observe',
-      ":->": 'off',
+      "-:>": 'off',
       '<:': 'trigger',
-      '*>': 'advise',
-      '*->': 'unadvise'
-    }
+      '?>': 'advise',
+      '-?>': 'unadvise'
     variable = @variable.compile o
     op = eventOps[@context]
     "#{utility op}.call(#{variable} || (#{variable} = {}), #{@value.compile o})"
