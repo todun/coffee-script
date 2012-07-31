@@ -1027,7 +1027,7 @@ exports.Assign = class Assign extends Base
       return @compilePatternMatch o if @variable.isArray() or @variable.isObject()
       return @compileSplice       o if @variable.isSplice()
       return @compileConditional  o if @context in ['||=', '&&=', '?=']
-      return @compileEvent        o if @context in [':=', ':-', '<-', '=:=']
+      return @compileEvent        o if @context in [':>', ':->', '<:', '*>', '*->']
     name = @variable.compile o, LEVEL_LIST
     unless @context
       unless (varBase = @variable.unwrapAll()).isAssignable()
@@ -1158,10 +1158,11 @@ exports.Assign = class Assign extends Base
   # Compile binding a function as an event
   compileEvent: (o) ->
     eventOps = {
-      ":=": 'on',
-      ":-": 'off',
-      '<-': 'trigger',
-      '=:=': 'advise'
+      ":>": 'observe',
+      ":->": 'off',
+      '<:': 'trigger',
+      '*>': 'advise',
+      '*->': 'unadvise'
     }
     variable = @variable.compile o
     op = eventOps[@context]
@@ -1992,7 +1993,7 @@ UTILITIES =
 
   ## Eventing utility methods
   # Bind callback to object
-  on: ->
+  observe: ->
     utility 'prepareHandler'
     (callback) ->
       __prepareHandler @
@@ -2010,6 +2011,12 @@ UTILITIES =
     (advisor) ->
       __prepareHandler @
       @__event_advisor.push(advisor)
+
+  unadvise: ->
+    utility 'prepareHandler'
+    (e) ->
+      __prepareHandler @
+      @__event_advisor[t..t] = [] if (t = @__event_advisor.indexOf(e)) > -1
 
   # Trigger callbacks for object.
   trigger: ->
