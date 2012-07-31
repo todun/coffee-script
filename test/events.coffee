@@ -103,3 +103,13 @@ test "Bind and trigger on [] accessors", ->
 	source[event] :> (e) -> pass = e
 	source[event] <: true
 	ok pass
+
+test "Observers and Advisors trigger in correct context", ->
+	source = new -> 
+		@pass = 0
+		@
+	add = -> @pass++
+	source.event :> add
+	source.event ?> add
+	source.event <: {}
+	equal source.pass, 2
